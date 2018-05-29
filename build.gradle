@@ -1,0 +1,58 @@
+ plugins {
+     id "application"
+     id "java"
+     id "eclipse"
+     id "idea"
+     id "jacoco"
+ }
+
+apply from: "https://raw.githubusercontent.com/kryptnostic/gradles/master/mavenRepos.gradle"
+
+description = "CumberlandCo"
+group = "com.openlattice"
+version = 'v0.0.1'
+
+mainClassName = 'com.openlattice.integrations.CumberlandCo'
+
+run {
+    if(project.hasProperty('args')){
+        args project.args.split()
+    }
+}
+
+configurations {
+    provided
+}
+
+configurations.all {
+    exclude module: 'slf4j-log4j12'
+}
+
+sourceSets {
+    main.compileClasspath += configurations.provided
+    test.compileClasspath += configurations.provided
+    test.runtimeClasspath += configurations.provided
+}
+
+dependencies {
+    compile 'com.microsoft.sqlserver:mssql-jdbc:6.2.2.jre8'
+    if (true) {
+        logger.quiet(project.name + " using project dependencies.")
+        compile project(":shuttle")
+    } else {
+        logger.quiet(project.name + " using jar dependencies.")
+        compile "com.openlattice:shuttle:0.0.2-SNAPSHOT"
+    }
+
+    compile fileTree(dir: "lib/", include: "*.jar")
+}
+
+eclipse {
+    ext.downloadSources = true
+    ext.downloadJavadoc = true
+
+    ext.sourceCompatibility = JavaVersion.VERSION_1_8
+    ext.targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+eclipse.classpath.plusConfigurations += [configurations.provided]
